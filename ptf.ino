@@ -5,8 +5,10 @@
 // Configuración del LCD para el alimento
 LiquidCrystal_I2C lcdFood(0x27, 16, 2);  // Dirección I2C, columnas, filas
 
+
+
 // Configuración del LCD para el agua
-LiquidCrystal_I2C lcdWater(0x28, 16, 2);  // Dirección I2C, columnas, filas
+LiquidCrystal_I2C lcdWater(0x3F, 16, 2);  // Dirección I2C, columnas, filas
 
 // Configuración de los sensores ultrasónicos
 const int foodTrigPin = 2;
@@ -33,10 +35,15 @@ int waterLevel = 0;
 int dailyFeedCount = 0;
 
 void setup() {
+  
+  lcdFood.init();
+  lcdFood.backlight();
   lcdFood.begin(16, 2);
   lcdFood.setCursor(2, 0);
   lcdFood.print("Healthy Pet");
-
+  
+  lcdWater.init();
+  lcdWater.backlight();
   lcdWater.begin(16, 2);
   lcdWater.setCursor(2, 0);
   lcdWater.print("Healthy Pet");
@@ -54,36 +61,40 @@ void setup() {
   pinMode(buttonS1Pin, INPUT_PULLUP);
 
   myServo.attach(servoPin);
+
+  delay(2000); //tiempo de espera para mostrar datos de inicio
+
 }
 
 void loop() {
   if (digitalRead(buttonAPin) == LOW) {
-    if (ageSelected) {
-      mostrarNivelAlimento();
-    }
+    mostrarNivelAlimento();
   }
 
   if (digitalRead(buttonBPin) == LOW) {
-    reiniciarSistema();
+
+    if (!ageSelected) {
+      if (digitalRead(buttonPPin) == LOW) {
+        seleccionarEdad("Cachorro", 4);
+      }
+
+      if (digitalRead(buttonQPin) == LOW) {
+        seleccionarEdad("Adolescente", 3);
+      }
+
+      if (digitalRead(buttonRPin) == LOW) {
+        seleccionarEdad("Adulto", 2);
+      }
+    }else{reiniciarSistema();}
+    
+
   }
 
   if (digitalRead(buttonS1Pin) == LOW) {
     mostrarNivelAgua();
   }
 
-  if (!ageSelected) {
-    if (digitalRead(buttonPPin) == LOW) {
-      seleccionarEdad("Cachorro", 3);
-    }
 
-    if (digitalRead(buttonQPin) == LOW) {
-      seleccionarEdad("Adolescente", 2);
-    }
-
-    if (digitalRead(buttonRPin) == LOW) {
-      seleccionarEdad("Adulto", 1);
-    }
-  }
 }
 
 void mostrarNivelAlimento() {
@@ -101,6 +112,7 @@ void mostrarNivelAgua() {
   lcdWater.setCursor(0, 0);
   lcdWater.print("Nivel de agua:");
   lcdWater.setCursor(4, 1);
+  waterLevel = obtenerNivelAgua();
   lcdWater.print(waterLevel);
   lcdWater.print("%");
   delay(1000);
@@ -151,7 +163,7 @@ void alimentarMascota() {
     lcdFood.clear();
     lcdFood.setCursor(2, 0);
     lcdFood.print("Ya alimentado");
-    delay(1000);
+    delay(1000); 
     lcdFood.clear();
   }
 }
@@ -163,5 +175,7 @@ int obtenerNivelAgua() {
   delayMicroseconds(10);
   digitalWrite(waterTrigPin, LOW);
 
-  return pulseIn(waterEchoPin, HIGH) * 0.0343 / 2;
+
+  return pulseIn(waterEchoPin, HIGH)*0.0343/2;
+
 }
