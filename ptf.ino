@@ -6,7 +6,6 @@
 LiquidCrystal_I2C lcdFood(0x27, 16, 2);  // Dirección I2C, columnas, filas
 
 
-
 // Configuración del LCD para el agua
 LiquidCrystal_I2C lcdWater(0x3F, 16, 2);  // Dirección I2C, columnas, filas
 
@@ -133,8 +132,8 @@ void mostrarNivelAgua() {
   delayMicroseconds(10);
   digitalWrite(waterTrigPin, LOW);
 
-  int rlevel = pulseIn(waterEchoPin, HIGH)*0.0343/2;
-  int wlvl = (((20 - rlevel)/20)*100); 
+  float rlevel = (pulseIn(waterEchoPin, HIGH)*0.0343)/2;
+  float wlvl = (((20 - rlevel)/20)*100); 
 
   lcdWater.clear();
   lcdWater.setCursor(0, 0);
