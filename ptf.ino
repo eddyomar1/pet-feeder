@@ -26,6 +26,9 @@ const int buttonPPin = 9;
 const int buttonQPin = 10;
 const int buttonRPin = 11;
 const int buttonS1Pin = 12;
+const int buzzAlert = 13;
+//Configuración de LDR
+const int ldr = A3; 
 
 // Variables para el estado del sistema
 bool ageSelected = false;
@@ -109,10 +112,12 @@ void loop() {
   lcdWater.print("Healthy Pet");
     
   }
-  
-//------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+buzz();
 
 }
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void mostrarNivelAlimento() {
 
@@ -144,13 +149,13 @@ void mostrarNivelAgua() {
   digitalWrite(waterTrigPin, LOW);
 
   float rlevel = (pulseIn(waterEchoPin, HIGH)*0.0343)/2;
-  float wlvl = (((20 - rlevel)/20)*100); 
+  float waterLevel = (((17 - rlevel)/17)*100); 
 
   lcdWater.clear();
   lcdWater.setCursor(0, 0);
   lcdWater.print("Nivel de agua:");
   lcdWater.setCursor(4, 1);
-  lcdWater.print(wlvl);
+  lcdWater.print(waterLevel);
   lcdWater.print("%");
   delay(5000);
 
@@ -185,7 +190,7 @@ void seleccionarEdad(String edad, int feedPerDay) {
 }
 
 void alimentarMascota() {
-  if (dailyFeedCount > 0) {
+  if (dailyFeedCount > 0 || ldr) {
     lcdFood.clear();
     lcdFood.setCursor(0, 0);
     lcdFood.print("Alimentando...");
@@ -205,4 +210,34 @@ void alimentarMascota() {
     delay(1000); 
     lcdFood.clear();
   }
+}
+
+void buzz() {
+   
+  digitalWrite(foodTrigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(foodTrigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(foodTrigPin, LOW);
+
+  float flevel = (pulseIn(foodEchoPin, HIGH)*0.0343)/2;
+  float foodLevel = (((27 - flevel)/27)*100); 
+
+
+  digitalWrite(waterTrigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(waterTrigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(waterTrigPin, LOW);
+
+  float rlevel = (pulseIn(waterEchoPin, HIGH)*0.0343)/2;
+  float waterLevel = (((17 - rlevel)/17)*100); 
+  
+
+while(foodLevel < 10 || waterLevel < 10){
+
+  tone(buzzAlert, 440, 500);
+  delay(1000);
+}
+
 }
