@@ -67,13 +67,19 @@ void setup() {
 }
 
 void loop() {
+  
   if (digitalRead(buttonAPin) == LOW) {
     mostrarNivelAlimento();
   }
 
-  if (digitalRead(buttonBPin) == LOW) {
+  else if (digitalRead(buttonBPin) == LOW) {
 
+    lcdFood.clear();
+    lcdFood.setCursor(0, 0);      
+    lcdFood.print("elige la edad");   
+    
     if (!ageSelected) {
+      while(!ageSelected){
       if (digitalRead(buttonPPin) == LOW) {
         seleccionarEdad("Cachorro", 4);
       }
@@ -85,37 +91,59 @@ void loop() {
       if (digitalRead(buttonRPin) == LOW) {
         seleccionarEdad("Adulto", 2);
       }
+    }      
     }else{reiniciarSistema();}
     
 
   }
 
-  if (digitalRead(buttonS1Pin) == LOW) {
+  else if (digitalRead(buttonS1Pin) == LOW) {
     mostrarNivelAgua();
-  }
+  }else{
 
+  lcdFood.clear();
+  lcdFood.setCursor(2, 0);
+  lcdFood.print("Healthy Pet");
+  
+  lcdWater.clear();
+  lcdWater.setCursor(2, 0);
+  lcdWater.print("Healthy Pet");
+    
+  }
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 }
 
 void mostrarNivelAlimento() {
   lcdFood.clear();
   lcdFood.setCursor(0, 0);
-  lcdFood.print("Nivel de alimento:");
+  lcdFood.print("   Alimento:    ");
   lcdFood.setCursor(4, 1);
-  lcdFood.print(foodLevel);
-  lcdFood.print("%");
-  delay(1000);
+  lcdFood.print(      foodLevel);
+  lcdFood.print("%       ");
+  delay(5000);
+   
 }
 
 void mostrarNivelAgua() {
+
+  digitalWrite(waterTrigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(waterTrigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(waterTrigPin, LOW);
+
+  int rlevel = pulseIn(waterEchoPin, HIGH)*0.0343/2;
+  int wlvl = (((20 - rlevel)/20)*100); 
+
   lcdWater.clear();
   lcdWater.setCursor(0, 0);
   lcdWater.print("Nivel de agua:");
   lcdWater.setCursor(4, 1);
-  waterLevel = obtenerNivelAgua();
-  lcdWater.print(waterLevel);
+  lcdWater.print(wlvl);
   lcdWater.print("%");
-  delay(1000);
+  delay(5000);
+
 }
 
 void reiniciarSistema() {
@@ -142,22 +170,23 @@ void seleccionarEdad(String edad, int feedPerDay) {
 
   ageSelected = true;
   dailyFeedCount = feedPerDay;
-  delay(1000);
+  delay(5000);
   lcdFood.clear();
 }
 
 void alimentarMascota() {
   if (dailyFeedCount > 0) {
-    myServo.write(180);
-    delay(2000);
-    myServo.write(0);
-    delay(2000);
-    dailyFeedCount--;
-
     lcdFood.clear();
     lcdFood.setCursor(0, 0);
     lcdFood.print("Alimentando...");
     delay(1000);
+
+    myServo.write(0);
+    delay(5000);
+    myServo.write(360);
+    delay(3000);
+    dailyFeedCount--;
+
     lcdFood.clear();
   } else {
     lcdFood.clear();
@@ -166,16 +195,4 @@ void alimentarMascota() {
     delay(1000); 
     lcdFood.clear();
   }
-}
-
-int obtenerNivelAgua() {
-  digitalWrite(waterTrigPin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(waterTrigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(waterTrigPin, LOW);
-
-
-  return pulseIn(waterEchoPin, HIGH)*0.0343/2;
-
 }
