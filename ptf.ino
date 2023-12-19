@@ -109,11 +109,22 @@ void loop() {
   lcdWater.print("Healthy Pet");
     
   }
+  
 //------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 }
 
 void mostrarNivelAlimento() {
+
+  digitalWrite(foodTrigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(foodTrigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(foodTrigPin, LOW);
+
+  float flevel = (pulseIn(foodEchoPin, HIGH)*0.0343)/2;
+  float foodLevel = (((27 - flevel)/27)*100); 
+
   lcdFood.clear();
   lcdFood.setCursor(0, 0);
   lcdFood.print("   Alimento:    ");
